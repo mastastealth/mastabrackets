@@ -1,0 +1,214 @@
+* { 
+	box-sizing: border-box; 
+	margin: 0;
+	padding: 0;
+}
+
+html, body { 
+	color: white;
+	height: 100%;
+	overflow: hidden; 
+}
+
+body {
+	background: url(splashBG.jpg) no-repeat center center fixed;
+	background-size: cover;
+	font-family: Lato,sans-serif;
+	padding: 100px 50px 50px;
+}
+
+h1 { font-size: 28px; }
+
+header {
+	background: black;
+	height: 50px;
+	line-height: 50px;
+	padding: 0 20px;
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%;
+}
+
+.bracket {
+	//border: 1px solid red;
+	display: flex;
+	height: 100%;
+}
+
+.column {
+	//border: 1px solid green;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	flex-shrink: 0;
+	justify-content: space-around;
+	transition: opacity 0.5s;
+
+	&.unready {
+		opacity: 0.75;
+	}
+
+	&:nth-of-type(n+2) .player {
+		&:before {
+			background: white;
+			content: '';
+			display: block;
+			position: absolute;
+			left: -15px;
+			width: 1px;
+		}
+
+		&:after {
+			background: white;
+			content: '';
+			display: block;
+			height: 1px;
+			position: absolute;
+			top: 25px; left: -15px;
+			width: 10px;
+		}
+	}
+
+	&:nth-of-type(2) .player {
+		&:before {
+			height: 80px;
+			top: -15px; 
+			width: 1px;
+		}
+	}
+
+	&:nth-of-type(3) .player {
+		&:before {
+			height: 150px;
+			top: -50px;
+		}
+	}
+
+	&:nth-of-type(4) .player {
+		&:before {
+			height: 300px;
+			top: -125px;
+		}
+	}
+}
+
+.matchup {
+	//border: 1px solid blue;
+	align-items: center;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	flex-shrink: 0;
+	justify-content: space-around;
+	transition: all 0.5s;
+
+	&:hover {
+		background: rgba(255,255,255,0.15);
+	}
+}
+
+.player {
+	background: rgba(0,0,0,0.5);
+	border-radius: 10px;
+	cursor: default;
+	line-height: 50px;
+	height: 50px;
+	padding: 0 10px;
+	position: relative;
+	transition: background 0.5s, color 0.5s;
+	width: 90%;
+
+	&:after {
+		//background: blue;
+		content: '';
+		height: 120%;
+		//pointer-events: none;
+		position: absolute;
+		top: -10%; right: -30px;
+		width: 40px;
+	}
+
+	&:hover {
+		z-index: 1;
+		color: #DF3400 !important;
+
+		.score button {
+			opacity: 1;
+			pointer-events: all;
+		}
+	}
+
+	&.loser, .column.unready & {
+		background: rgba(80,80,80,0.75);
+		box-shadow: inset 0 0 0 2px rgba(0,0,0,0.5);
+		color: #666;
+
+		.score {
+			border-radius: 0 8px 8px 0;
+			color: black;
+			height: calc(100% - 4px);
+			top: 2px; right: 2px;
+			width: 48px;
+		}
+	}
+
+	.score {
+		background: #DF3400;
+		border-radius: 0 10px 10px 0;
+		color: white;
+		font-size: 24px;
+		height: 100%;
+		position: absolute;
+		right: 0; top: 0;
+		text-align: center;
+		width: 50px;
+		z-index: 1;
+
+		button { 
+			border: 0 none;
+			background: white;
+			border-radius: 50%;
+			color: #333;
+			cursor: pointer;
+			font-size: 18px;
+			height: 30px;
+			opacity: 0;
+			pointer-events: none;
+			position: absolute; 
+			right: -40px;
+			text-align: center;
+			transition: all 0.5s;
+			width: 30px;
+
+			&:hover {
+				background: #DF3400;
+				color: white;
+			}
+
+			&.add {
+				top: -10px;
+			}
+
+			&.sub {
+				top: 30px;
+			}
+		}
+	}
+}
+	.champion .player {
+		background: #DF3400;
+		text-align: center;
+		text-transform: uppercase;
+
+		&:hover {
+			background: white;
+		}
+
+		i {
+			color: gold;
+			font-size: 22px;
+			margin-right: 10px;
+			vertical-align: middle;
+		}
+	}

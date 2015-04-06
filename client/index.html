@@ -1,0 +1,117 @@
+<head>
+	<meta charset="UTF-8">
+	<title>Mastabrackets | Tournament Bracket App</title>
+	<link href='http://fonts.googleapis.com/css?family=Lato:400,300' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+</head>
+
+<body>
+	<header>
+		<h1>Mastabrackets</h1>
+	</header>
+
+	{{> bracket }}
+
+	<!-- div class="bracket">
+		<div class="column">
+			<div class="matchup">
+				<div class="player">
+					Mastastealth
+
+					<div class="score">
+						<span>2</span>
+						<button class="add ion-plus-round"></button>
+						<button class="sub ion-minus-round"></button>
+					</div>
+				</div>
+
+				<div class="player loser">
+					Nguyen
+					<div class="score">
+						<span>0</span>
+						<button class="add ion-plus-round"></button>
+						<button class="sub ion-minus-round"></button>
+					</div>
+				</div>
+			</div>
+
+			<div class="matchup">
+				<div class="player loser">Alex</div>
+				<div class="player">Nasal</div>
+			</div>
+
+			<div class="matchup">
+				<div class="player">Deadbones</div>
+				<div class="player loser">Youthful</div>
+			</div>
+
+			<div class="matchup">
+				<div class="player loser">Andy</div>
+				<div class="player">Jenngo</div>
+			</div>
+		</div>
+		<div class="column">
+			<div class="matchup">
+				<div class="player">Mastastealth</div>
+				<div class="player loser">Nasal</div>
+			</div>
+			<div class="matchup">
+				<div class="player">Deadbones</div>
+				<div class="player loser">Jenngo</div>
+			</div>
+		</div>
+		<div class="column">
+			<div class="matchup">
+				<div class="player">Mastastealth</div>
+				<div class="player loser">Deadbones</div>
+			</div>
+		</div>
+		<div class="champion column">
+			<div class="player">
+				<i class="ion-trophy"></i>
+			</div>
+		</div>
+	</div -->
+</body>
+
+<template name="bracket">
+	<div class="bracket">
+		{{#each columns}}
+			{{> column}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="column">
+	<div class="column {{isChamp}}">
+		{{#if isChamp champion }} 
+			{{#each matchup}}
+				{{> match}}
+			{{/each}}
+		{{/if }}
+		
+		{{#if isChamp false }} 
+			{{> player}}
+		{{/if }}
+	</div>
+</template>
+
+<template name="match">
+	<div class="matchup">
+		{{#each players}}
+			{{> player}}
+		{{/each}}
+	</div>
+</template>
+
+<template name="player">
+	<div class="player {{isLoser}}">
+		<span class="name">{{name}}</span>
+
+		<div class="score">
+			<span>{{score}}</span>
+			<button class="add ion-plus-round"></button>
+			<button class="sub ion-minus-round"></button>
+		</div>
+	</div>
+</template>
