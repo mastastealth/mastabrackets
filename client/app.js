@@ -1,4 +1,5 @@
 Meteor.subscribe('Matches');
+Matchups = new Mongo.Collection(null);
 
 var players = [];
 var brackets = [];
@@ -10,18 +11,33 @@ Meteor.subscribe('Players', function() {
 
 	// Pair up
 	for (var i = 0; i < players.length; i += 2) {
-		players[i].score = 0;
-		players[i+1].score = 0;
-
+		// players[i].score = 0;
+		// players[i+1].score = 0;
 	    brackets.push([players[i], players[i+1]]);
 	}
 
-	Session.set('brackets',brackets);
-
+	//Session.set('brackets',brackets);
 	//console.log(players,brackets);
-});
 
-Winners = new Mongo.Collection("winners");
+	// Load initial matchups into DB
+	for (var j=0; j<brackets.length; j+=1) {
+		Matchups.insert({
+			"players" : [
+				{
+					"name": brackets[j][0].name,
+					"score": 0,
+					"id" : 0
+				},
+				{
+					"name": brackets[j][1].name,
+					"score": 0,
+					"id" : 1
+				}
+			],
+			"winner" : false
+		});
+	}
+});
 
 // Knuth Shuffle
 function shuffle(array) {
@@ -45,7 +61,7 @@ function shuffle(array) {
 
 Template.bracket.helpers({
 	"columns" : function() {
-		var brackets = Session.get('brackets');
+		var brackets = Matchups.find().fetch();
 		var blen = brackets.length*2;
 
 		// First Column
@@ -75,6 +91,9 @@ Template.bracket.helpers({
 });
 
 Template.column.helpers({
+	"id" : function() {
+		return this._id;
+	},
 	"count" : function() {
 		return this.count;
 	},
@@ -87,15 +106,31 @@ Template.column.helpers({
 	},
 	"matchup" : function() {
 		if (this.isFirst) {
-			return Session.get('brackets');
+			// Spit it all out
+			return Matchups.find().fetch();
 		} else {
-			// TODO: Add the correct amount of matchups
-			// according to count from column, blank originally
-			// but with proper winner info as tournament goes on
+			// Correct number of matchups, blank for now
 			var x = [];
 
+			// This is the pair of players per matchup
 			for (var i = 0; i < this.count/2; i += 1) {
-			    x.push(['','']);
+			    x.push({
+			    	players : [{
+			    		name:'',id:0
+				    },{
+				    	name:'',id:1
+				    }]
+			    });
+			}
+
+			// Get some real info
+			var y = Matchups.find({
+				players : { $elemMatch : { score: { $gt: 1 } } } 
+			}).fetch();
+
+			// Replace x info with actual data
+			for (var j = 0; j < y.length; j += 1) {
+			    x[Math.floor(j/2)].players[j%2] = y[j].players[ y[j].winner ];
 			}
 
 			return x;
@@ -105,15 +140,17 @@ Template.column.helpers({
 
 Template.match.helpers({
 	"pair" : function() {
-		return this;
+		return this.players;
 	},
 	"id" : function() {
-		var brackets = Session.get('brackets');
-		return brackets.indexOf(this);
+		return this._id;
 	}
 });
 
 Template.player.helpers({
+	"id" : function() {
+		return this.id;
+	},
 	"name" : function() {
 		return this.name;
 	},
@@ -123,34 +160,61 @@ Template.player.helpers({
 });
 
 Template.player.events({
-	"click .add" : function() {
-		var brackets = Session.get('brackets');
-
+	"click .add" : function(e) {
 		if (this.score<wins) {
-			for (var i = 0; i < brackets.length; i+=1) {
-			    if (brackets[i][0].name === this.name) {
-			    	brackets[i][0].score += 1;
-			    } else if (brackets[i][1].name === this.name) {
-			    	brackets[i][1].score += 1;
-			    }
-			}
+			var par = e.target.parentNode.parentNode.parentNode.getAttribute('id');
+			
+			Matchups.update({
+				"_id" : par,
+				"players.name" : this.name 
+			}, { 
+				$set: { 
+					"players.$": { 
+						name: this.name,
+						id: this.id,
+						score: this.score+1 
+					} 
+				} 
+			});
 
-			Session.set('brackets',brackets);
+			// If they are currently a winner
+			if (this.score+1>1) {
+				Matchups.update( 
+					par, { 
+						$set: { "winner": this.id } 
+				});
+			} else {
+				Matchups.update( 
+					par, { 
+						$set: { "winner": false } 
+				});
+			}
 		}
 	},
-	"click .sub" : function() {
-		var brackets = Session.get('brackets');
-
+	"click .sub" : function(e) {
 		if (this.score>0)  {
-			for (var i = 0; i < brackets.length; i+=1) {
-			    if (brackets[i][0].name === this.name) {
-			    	brackets[i][0].score -= 1;
-			    } else if (brackets[i][1].name === this.name) {
-			    	brackets[i][1].score -= 1;
-			    }
-			}
+			var par = e.target.parentNode.parentNode.parentNode.getAttribute('id');
+			
+			Matchups.update({
+				"_id" : par,
+				"players.name" : this.name 
+			}, { 
+				$set: { 
+					"players.$": { 
+						name: this.name,
+						id: this.id,
+						score: this.score-1 
+					} 
+				} 
+			});
 
-			Session.set('brackets',brackets);
+			// Remove if was winner
+			if (this.score-1<2) {
+				Matchups.update( 
+					par, { 
+						$set: { "winner": false } 
+				});
+			}
 		}
 	},
 });

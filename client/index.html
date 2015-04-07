@@ -22,7 +22,7 @@
 </template>
 
 <template name="column">
-	<div class="column {{isChamp}}" id="{{value}}" data-count="{{count}}">
+	<div class="column {{isChamp}}" data-count="{{count}}">
 		{{#if isChamp champion }} 
 			{{> player}}
 		{{else}} 
@@ -34,7 +34,7 @@
 </template>
 
 <template name="match">
-	<div class="matchup">
+	<div class="matchup" id="{{id}}">
 		{{#each pair}}
 			{{> player}}
 		{{/each}}
@@ -42,7 +42,7 @@
 </template>
 
 <template name="player">
-	<div class="player {{isLoser}}">
+	<div class="player {{isLoser}}" data-id="{{id}}">
 		<span class="name">{{name}}</span>
 
 		<div class="score">
