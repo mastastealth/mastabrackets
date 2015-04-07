@@ -125,7 +125,11 @@ Template.column.helpers({
 
 			// Get some real info
 			var y = Matchups.find({
-				players : { $elemMatch : { score: { $gt: 1 } } } 
+				// TODO: This somehow needs to reflect a $gt that matches
+				// the column properly as to show subsequent winners
+				players : { 
+					$elemMatch : { score: { $gt: 1 } } 
+				} 
 			}).fetch();
 
 			// Replace x info with actual data
@@ -139,6 +143,9 @@ Template.column.helpers({
 });
 
 Template.match.helpers({
+	"count" : function() {
+		return this.count
+	},
 	"pair" : function() {
 		return this.players;
 	},
@@ -155,13 +162,34 @@ Template.player.helpers({
 		return this.name;
 	},
 	"score" : function() {
-		return this.score;
+		// Max number of players in the game
+		var max = Matchups.find().fetch().length*2;
+		var n = 0;
+		if (Template.parentData(2)) n = Template.parentData(2).count;
+
+		// Max out first column at "wins" number
+		if (this.score>=wins && n === max) {
+			return wins;
+		} 
+		// Max out other columns at "wins" number as well
+		// or show remainder
+		else if (this.score>=wins && n != max) {
+			if (this.score>=wins*(max/n)) {
+				return wins;
+			} else {
+				return this.score % wins;
+			}
+		} 
+		// Otherwise just add like normal
+		else {
+			return this.score;
+		}
 	}
 });
 
 Template.player.events({
 	"click .add" : function(e) {
-		if (this.score<wins) {
+		if (true) {
 			var par = e.target.parentNode.parentNode.parentNode.getAttribute('id');
 			
 			Matchups.update({
