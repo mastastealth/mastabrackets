@@ -116,6 +116,7 @@ header {
 	height: 50px;
 	padding: 0 10px;
 	position: relative;
+	text-transform: capitalize;
 	transition: background 0.5s, color 0.5s;
 	width: 90%;
 
@@ -154,10 +155,6 @@ header {
 	}
 
 	.score {
-		background: #DF3400;
-		border-radius: 0 10px 10px 0;
-		color: white;
-		font-size: 24px;
 		height: 100%;
 		position: absolute;
 		right: 0; top: 0;
@@ -165,6 +162,21 @@ header {
 		width: 50px;
 		z-index: 1;
 
+		span {
+			background: #DF3400;
+			border-radius: 0 10px 10px 0;
+			color: white;
+			display: block;
+			font-size: 24px;
+			height: 100%;
+			transition: all 0.5s;
+			width: 100%;
+
+			&:empty {
+				opacity: 0;
+			}
+		}
+		
 		button { 
 			border: 0 none;
 			background: white;
@@ -211,4 +223,6 @@ header {
 			margin-right: 10px;
 			vertical-align: middle;
 		}
+
+		.score { display: none; }
 	}

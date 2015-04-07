@@ -9,69 +9,8 @@
 	<header>
 		<h1>Mastabrackets</h1>
 	</header>
-
+	
 	{{> bracket }}
-
-	<!-- div class="bracket">
-		<div class="column">
-			<div class="matchup">
-				<div class="player">
-					Mastastealth
-
-					<div class="score">
-						<span>2</span>
-						<button class="add ion-plus-round"></button>
-						<button class="sub ion-minus-round"></button>
-					</div>
-				</div>
-
-				<div class="player loser">
-					Nguyen
-					<div class="score">
-						<span>0</span>
-						<button class="add ion-plus-round"></button>
-						<button class="sub ion-minus-round"></button>
-					</div>
-				</div>
-			</div>
-
-			<div class="matchup">
-				<div class="player loser">Alex</div>
-				<div class="player">Nasal</div>
-			</div>
-
-			<div class="matchup">
-				<div class="player">Deadbones</div>
-				<div class="player loser">Youthful</div>
-			</div>
-
-			<div class="matchup">
-				<div class="player loser">Andy</div>
-				<div class="player">Jenngo</div>
-			</div>
-		</div>
-		<div class="column">
-			<div class="matchup">
-				<div class="player">Mastastealth</div>
-				<div class="player loser">Nasal</div>
-			</div>
-			<div class="matchup">
-				<div class="player">Deadbones</div>
-				<div class="player loser">Jenngo</div>
-			</div>
-		</div>
-		<div class="column">
-			<div class="matchup">
-				<div class="player">Mastastealth</div>
-				<div class="player loser">Deadbones</div>
-			</div>
-		</div>
-		<div class="champion column">
-			<div class="player">
-				<i class="ion-trophy"></i>
-			</div>
-		</div>
-	</div -->
 </body>
 
 <template name="bracket">
@@ -83,22 +22,20 @@
 </template>
 
 <template name="column">
-	<div class="column {{isChamp}}">
+	<div class="column {{isChamp}}" id="{{value}}" data-count="{{count}}">
 		{{#if isChamp champion }} 
+			{{> player}}
+		{{else}} 
 			{{#each matchup}}
 				{{> match}}
 			{{/each}}
-		{{/if }}
-		
-		{{#if isChamp false }} 
-			{{> player}}
 		{{/if }}
 	</div>
 </template>
 
 <template name="match">
 	<div class="matchup">
-		{{#each players}}
+		{{#each pair}}
 			{{> player}}
 		{{/each}}
 	</div>
