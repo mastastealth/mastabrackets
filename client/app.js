@@ -128,7 +128,7 @@ Template.column.helpers({
 				// TODO: This somehow needs to reflect a $gt that matches
 				// the column properly as to show subsequent winners
 				players : { 
-					$elemMatch : { score: { $gt: 1 } } 
+					$elemMatch : { score: { $gt: (players.length/this.count)-1 } } 
 				} 
 			}).fetch();
 
@@ -169,9 +169,11 @@ Template.champ.helpers({
 			} 
 		}).fetch();
 
-		if (y[0].players[0].score >= wins*(win-1)) {
-			return y[0].players[0].name
-		} else { return y[0].players[1].name }
+		if (y[0]) {
+			if (y[0].players[0].score >= wins*(win-1)) {
+				return y[0].players[0].name
+			} else { return y[0].players[1].name }
+		}
 	}
 })
 
