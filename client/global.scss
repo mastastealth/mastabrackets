@@ -90,6 +90,24 @@ header {
 			top: -125px;
 		}
 	}
+
+	// 3 columns
+	&:first-child:nth-last-child(3), 
+	&:first-child:nth-last-child(3) ~ .column {
+		width: 33.3%;
+	}
+
+	// 4 columns
+	&:first-child:nth-last-child(4), 
+	&:first-child:nth-last-child(4) ~ .column {
+		width: 25%;
+	}
+
+	// 5 columns
+	&:first-child:nth-last-child(5), 
+	&:first-child:nth-last-child(5) ~ .column {
+		width: 20%;
+	}
 }
 
 .matchup {

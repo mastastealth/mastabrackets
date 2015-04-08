@@ -24,7 +24,7 @@
 <template name="column">
 	<div class="column {{isChamp}}" data-count="{{count}}">
 		{{#if isChamp champion }} 
-			{{> player}}
+			{{> champ}}
 		{{else}} 
 			{{#each matchup}}
 				{{> match}}
@@ -50,5 +50,12 @@
 			<button class="add ion-plus-round"></button>
 			<button class="sub ion-minus-round"></button>
 		</div>
+	</div>
+</template>
+
+<template name="champ">
+	<div class="player">
+		<i class="ion-trophy"></i>
+		<span class="name">{{name}}</span>
 	</div>
 </template>

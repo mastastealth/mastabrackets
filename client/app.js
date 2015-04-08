@@ -154,6 +154,27 @@ Template.match.helpers({
 	}
 });
 
+Template.champ.helpers({
+	"name" : function() {
+		var max = Players.find().fetch().length;
+		var win = 0;
+
+		if (max===4) win = 3;
+		if (max===8) win = 4;
+		if (max===16) win = 5;
+
+		var y = Matchups.find({
+			players : { 
+				$elemMatch : { score: { $gt: (wins*(win-1))-1 } } 
+			} 
+		}).fetch();
+
+		if (y[0].players[0].score >= wins*(win-1)) {
+			return y[0].players[0].name
+		} else { return y[0].players[1].name }
+	}
+})
+
 Template.player.helpers({
 	"id" : function() {
 		return this.id;
