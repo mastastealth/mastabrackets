@@ -6,12 +6,64 @@
 </head>
 
 <body>
+	
+</body>
+
+<template name="index">
 	<header>
 		<h1>Mastabrackets</h1>
 	</header>
 	
 	{{> bracket }}
-</body>
+	{{> playerEntry }}
+</template>
+
+<template name="signup">
+	<header>
+		<h1>Mastabrackets | Sign Up</h1>
+	</header>
+
+	<div class="overlay active">
+		<div class="modal pub">
+			<img src="logo.png" alt="LEADtoFIRE">
+			<h1>Tournament Sign Up</h1>
+			<p>Add your name to the player list for future tournaments!</p>
+
+			<input id="player" type="text" maxlength=16>
+
+			<button>Submit</button>
+
+			{{#if msg}} 
+				<p class="{{status.type}}">
+					{{status.text}}
+				</p>
+			{{/if}} 
+		</div>
+	</div>
+</template>
+
+<template name="playerEntry">
+	<div class="overlay {{isActive}}">
+		<div class="modal {{isAdmin}}">
+			<h2>Select Players</h2>
+			<p>(Developer use only please!)</p>
+
+			<div class="playerList">
+				{{#each player}}
+					{{> playerOption}}
+				{{/each}}
+			</div>
+
+			<button>Start</button>
+		</div>
+	</div>
+</template>
+
+<template name="playerOption">
+	<div class="playerOpt" data-name="{{name}}">
+		{{name}}
+	</div>
+</template>
 
 <template name="bracket">
 	<div class="bracket">
@@ -34,7 +86,7 @@
 </template>
 
 <template name="match">
-	<div class="matchup" id="{{id}}">
+	<div class="matchup {{isBlank}}" id="{{id}}">
 		{{#each pair}}
 			{{> player}}
 		{{/each}}
@@ -49,7 +101,7 @@
 			<span>{{score}}</span>
 
 			{{#if isWinnerConfirm}} 
-				<button class="win ion-ribbon-a"></button>
+				<button class="win ion-ribbon-a {{isWinner}}"></button>
 				<button class="sub ion-minus-round"></button>
 			{{ else }}
 				<button class="add ion-plus-round"></button>
@@ -60,8 +112,16 @@
 </template>
 
 <template name="champ">
-	<div class="player =">
+	<div class="player">
 		<i class="ion-trophy {{winner}}"></i>
 		<span class="name">{{name}}</span>
+
+		{{#if winner}}
+			{{> saveTourney}}
+		{{/if}}
 	</div>
+</template>
+
+<template name="saveTourney">
+	<button class="save animated bounceIn">Save Tournament</button>
 </template>
