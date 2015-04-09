@@ -22,14 +22,14 @@
 </template>
 
 <template name="column">
-	<div class="column {{isChamp}}" data-count="{{count}}">
+	<div class="column {{isChamp}}">
 		{{#if isChamp champion }} 
 			{{> champ}}
 		{{else}} 
 			{{#each matchup}}
 				{{> match}}
 			{{/each}}
-		{{/if }}
+		{{/if}}
 	</div>
 </template>
 
@@ -42,20 +42,26 @@
 </template>
 
 <template name="player">
-	<div class="player {{isLoser}}" data-id="{{id}}">
+	<div class="player {{isLoser}} {{isWinner}}" data-id="{{id}}" data-status="{{status}}">
 		<span class="name">{{name}}</span>
 
 		<div class="score">
 			<span>{{score}}</span>
-			<button class="add ion-plus-round"></button>
-			<button class="sub ion-minus-round"></button>
+
+			{{#if isWinnerConfirm}} 
+				<button class="win ion-ribbon-a"></button>
+				<button class="sub ion-minus-round"></button>
+			{{ else }}
+				<button class="add ion-plus-round"></button>
+				<button class="sub ion-minus-round"></button>
+			{{/if}}
 		</div>
 	</div>
 </template>
 
 <template name="champ">
-	<div class="player">
-		<i class="ion-trophy"></i>
+	<div class="player =">
+		<i class="ion-trophy {{winner}}"></i>
 		<span class="name">{{name}}</span>
 	</div>
 </template>

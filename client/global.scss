@@ -119,11 +119,20 @@ header {
 	flex-grow: 1;
 	flex-shrink: 0;
 	justify-content: space-around;
+	position: relative;
 	transition: all 0.5s;
 
 	&:hover {
 		background: rgba(255,255,255,0.15);
 	}
+
+	// &:after {
+	// 	color: white;
+	// 	content: attr(id);
+	// 	font-size: 10px;
+	// 	position: absolute;
+	// 	top: 0; right: 0;
+	// }
 }
 
 .player {
@@ -160,6 +169,8 @@ header {
 			top: 2px; right: 2px;
 			width: 48px;
 		}
+
+		button { display: none; }
 	}
 
 	.score {
@@ -216,9 +227,14 @@ header {
 			&:hover {
 				background: #DF3400;
 				color: white;
+				transform: scale(1.1);
+
+				&.win {
+					color: gold;
+				}
 			}
 
-			&.add {
+			&.add, &.win {
 				top: -10px;
 			}
 
