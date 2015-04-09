@@ -17,7 +17,7 @@ Matchups = new Mongo.Collection(null); // Local
 function startTourney(p) {
 	//players = shuffle(p);
 
-	var playerCount = players.length;
+	var playerCount = p.length;
 	var t = playerCount/2;
 	var c = 1;
 	var parent = false;
@@ -77,19 +77,15 @@ function startTourney(p) {
 		}
 	});
 
-	// -----------------------------------------
-	//   TEMP: Create initial matchups randomly
-	// -----------------------------------------
 	var m = Matchups.find({tier:playerCount/2}).fetch();
-	var p1 = players;
 
 	for (var j=0; j<m.length; j+=1) {
 		//console.log(m[j]._id);
 
 		Matchups.update({ _id: m[j]._id },{
 			$set: { 
-				"players.0.name": p1.pop(),
-				"players.1.name": p1.pop()
+				"players.0.name": p.shift(),
+				"players.1.name": p.shift()
 			}
 		});
 	}
@@ -212,6 +208,8 @@ Template.playerEntry.events({
 			},1000);
 		}
 	}
+});
+
 // Generate columns based off number of players
 // participating in tournament
 Template.bracket.helpers({
