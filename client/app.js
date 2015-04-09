@@ -275,7 +275,44 @@ Template.champ.helpers({
 
 Template.champ.events({
 	"click button.save" : function()  {
-		
+		// Iterate through all the matchups and check for winners
+		var w = 0;
+		var m = Matchups.find().fetch();
+
+		for (var i=0;i<m.length;i+=1) {
+			if (m[i].winner != "") w++
+		}
+
+		// If we have the right number of winners
+		if (w === m.length) {
+			// Iterate every matchup and append set of 
+			// matches to Matches collection
+			for (var j=0;j<m.length;j+=1) {
+				var p1 = m[j].players[0];
+				var p2 = m[j].players[1];
+
+				// For every win by player 1
+				for (var x=0;x<p1.score;x+=1) {
+					Matches.insert({
+						"winner" : p1.name,
+						"loser" : p2.name,
+						"date" :  Date.now()
+					})
+				}
+
+				// For every win by player 2
+				for (var y=0;y<p2.score;y+=1) {
+					Matches.insert({
+						"winner" : p2.name,
+						"loser" : p1.name,
+						"date" :  Date.now()
+					})
+				}
+			}
+		}
+
+		e.target.setAttribute('disabled','disabled');
+		e.target.textContent = "Saved";
 	}
 });
 

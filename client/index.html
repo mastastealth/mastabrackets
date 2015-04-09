@@ -115,11 +115,11 @@
 	<div class="player">
 		<i class="ion-trophy {{winner}}"></i>
 		<span class="name">{{name}}</span>
-
-		{{#if winner}}
-			{{> saveTourney}}
-		{{/if}}
 	</div>
+
+	{{#if winner}}
+		{{> saveTourney}}
+	{{/if}}
 </template>
 
 <template name="saveTourney">
