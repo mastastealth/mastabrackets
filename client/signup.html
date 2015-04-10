@@ -1,0 +1,26 @@
+<template name="signup">
+	<header>
+		<h1>Mastabrackets | Sign Up</h1>
+	</header>
+
+	<div class="overlay active">
+		<div class="modal pub {{isAdmin}}">
+			<img src="logo.png" alt="LEADtoFIRE">
+			<h1>Tournament Sign Up</h1>
+			<h2 id="title" contenteditable="{{canEdit}}">{{title}}</h2>
+			<h3 id="date" contenteditable="{{canEdit}}">{{date}}</h3>
+
+			<p>Add your name to the pool for the above tournament!</p>
+
+			<input id="player" type="text" maxlength=16>
+
+			<button>Submit</button>
+
+			{{#if msg}} 
+				<p class="{{status.type}}">
+					{{status.text}}
+				</p>
+			{{/if}} 
+		</div>
+	</div>
+</template>

@@ -18,35 +18,11 @@
 	{{> playerEntry }}
 </template>
 
-<template name="signup">
-	<header>
-		<h1>Mastabrackets | Sign Up</h1>
-	</header>
-
-	<div class="overlay active">
-		<div class="modal pub">
-			<img src="logo.png" alt="LEADtoFIRE">
-			<h1>Tournament Sign Up</h1>
-			<p>Add your name to the player list for future tournaments!</p>
-
-			<input id="player" type="text" maxlength=16>
-
-			<button>Submit</button>
-
-			{{#if msg}} 
-				<p class="{{status.type}}">
-					{{status.text}}
-				</p>
-			{{/if}} 
-		</div>
-	</div>
-</template>
-
 <template name="playerEntry">
 	<div class="overlay {{isActive}}">
 		<div class="modal {{isAdmin}}">
 			<h2>Select Players</h2>
-			<p>(Developer use only please!)</p>
+			<p>Minimum 4 players (and a power of 2) to start tourney.</p>
 
 			<div class="playerList">
 				{{#each player}}
@@ -74,7 +50,7 @@
 </template>
 
 <template name="column">
-	<div class="column {{isChamp}}">
+	<div class="column {{isChamp}} {{isEmpty}}">
 		{{#if isChamp champion }} 
 			{{> champ}}
 		{{else}} 

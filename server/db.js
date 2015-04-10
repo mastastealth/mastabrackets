@@ -5,3 +5,7 @@ Meteor.publish('Players', function() {
 Meteor.publish('Matches', function() {
 	return Matches.find({});
 });
+
+Meteor.publish('Signup', function() {
+	return Signup.find({});
+})

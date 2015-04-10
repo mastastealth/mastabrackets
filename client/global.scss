@@ -69,7 +69,12 @@ header {
 			max-width: 100%;
 		}
 
-		h1, h2, p { margin-bottom: 20px; }
+		h1, h2, h3, p { 
+			margin-bottom: 20px; 
+
+			&:focus { background: rgba(255,255,240,0.2); }
+		}
+
 			h1 { color: #DF3400; }
 			p { 
 				color : #666;
@@ -89,7 +94,7 @@ header {
 		}
 
 		.playerOpt { 
-			border: 1px solid black;
+			border-bottom: 1px solid black;
 			cursor: cell;
 			line-height: 40px; 
 			text-transform: capitalize;
@@ -149,8 +154,15 @@ header {
 	justify-content: space-around;
 	transition: opacity 0.5s;
 
-	&.champion:only-child, &:empty {
+	&.champion:only-child, &.empty {
 		display: none;
+		order: -1;
+	}
+
+	&.empty + .column .player {
+		&:before, &:after {
+			content: none !important;
+		}
 	}
 
 	&:nth-of-type(n+2) .player {
@@ -404,5 +416,10 @@ header {
 	&:hover {
 		background: lighten(#DF3400,5%);
 		transform: scale(1.1);
+	}
+
+	&[disabled] {
+		background: rgba(80,80,80,0.75);
+		color: #666;
 	}
 }
