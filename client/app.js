@@ -249,7 +249,7 @@ Template.bracket.helpers({
 	"columns" : function() {
 		var columns = [];
 		// TODO: Replace with just players playing this time
-		var x = Math.log2( Players.find().fetch().length ) + 1;
+		var x = Math.log2( Session.get('playerList').length ) + 1;
 
 		for (var i=0; i<x; i+=1) {
 			if (i === x-1) {
@@ -258,17 +258,20 @@ Template.bracket.helpers({
 				});
 			} else if (i===0) {
 				columns.push({ 
-					matches : Players.find().fetch().length/2
+					matches : Session.get('playerList').length/2
 				});
 			} else {
 				columns.push({ 
-					matches : Players.find().fetch().length/(2*(i*2))
+					matches : Session.get('playerList').length/(2*(i*2))
 				});
 			}
 		}
 
-		if (Matchups.find().fetch().length === 0) columns = [];
-		return columns;
+		if (Matchups.find().fetch().length === 0) {
+			return [];
+		} else {
+			return columns;
+		}
 	}
 });
 
