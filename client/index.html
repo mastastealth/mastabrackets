@@ -24,13 +24,15 @@
 			<h2>Select Players</h2>
 			<p>Minimum 4 players (and a power of 2) to start tourney.</p>
 
+			<p><button class="bye">Add Bye</button></p>
+
 			<div class="playerList">
 				{{#each player}}
 					{{> playerOption}}
 				{{/each}}
 			</div>
 
-			<button>Start</button>
+			<button class="start">Start</button>
 		</div>
 	</div>
 </template>
@@ -38,6 +40,10 @@
 <template name="playerOption">
 	<div class="playerOpt" data-name="{{name}}">
 		{{name}}
+
+		<button class="remove">
+			<i class="ion-close"></i>
+		</button>
 	</div>
 </template>
 
@@ -50,7 +56,7 @@
 </template>
 
 <template name="column">
-	<div class="column {{isChamp}} {{isEmpty}}">
+	<div class="column {{isChamp}} {{isEmpty}}" data-mcount="{{matchCount}}">
 		{{#if isChamp champion }} 
 			{{> champ}}
 		{{else}} 
@@ -70,7 +76,7 @@
 </template>
 
 <template name="player">
-	<div class="player {{isLoser}} {{isWinner}}" data-id="{{id}}" data-status="{{status}}">
+	<div class="player {{isLoser}} {{isWinner}}" data-id="{{name}}" data-status="{{status}}">
 		<span class="name">{{name}}</span>
 
 		<div class="score">
@@ -83,6 +89,8 @@
 				<button class="add ion-plus-round"></button>
 				<button class="sub ion-minus-round"></button>
 			{{/if}}
+
+				<button class="swap ion-loop"></button>
 		</div>
 	</div>
 </template>

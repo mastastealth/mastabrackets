@@ -224,7 +224,7 @@ Template.playerEntry.events({
 			Session.set('playerList', p );
 		}
 	},
-	"click button" : function(e) {
+	"click .start" : function(e) {
 		// Only if 8 players selected
 		var pList = document.querySelectorAll('.modal .playerOpt.active');
 
@@ -240,6 +240,16 @@ Template.playerEntry.events({
 				document.querySelector('.modal').classList.remove('animated','shake');
 			},1000);
 		}
+	},
+	"click .remove" : function(e) {
+		e.stopPropagation();
+
+		var n = e.target.parentNode.getAttribute('data-name');
+		var p = Players.find({name: n}).fetch()[0]._id;
+		Players.remove(p);
+	},
+	"click .bye" : function() {
+		Players.insert({ name: "bye", wins: 0, losses: 0 });
 	}
 });
 
@@ -248,21 +258,24 @@ Template.playerEntry.events({
 Template.bracket.helpers({
 	"columns" : function() {
 		var columns = [];
-		// TODO: Replace with just players playing this time
+
 		var x = Math.log2( Session.get('playerList').length ) + 1;
 
 		for (var i=0; i<x; i+=1) {
+			// If this is the last column
 			if (i === x-1) {
 				columns.push({ 
 					matches : 0
 				});
-			} else if (i===0) {
+			} 
+			// If this is the first column
+			else if (i===0) {
 				columns.push({ 
 					matches : Session.get('playerList').length/2
 				});
 			} else {
 				columns.push({ 
-					matches : Session.get('playerList').length/(2*(i*2))
+					matches : Session.get('playerList').length/Math.pow(2,i+1)
 				});
 			}
 		}
@@ -276,6 +289,9 @@ Template.bracket.helpers({
 });
 
 Template.column.helpers({
+	"matchCount" : function() {
+		return this.matches;
+	},
 	"isChamp" : function() {
 		if (this.matches === 0) {
 			return "champion"
@@ -391,6 +407,48 @@ Template.player.helpers({
 })
 
 Template.player.events({
+	"click .swap" : function(e) {
+		e.target.classList.toggle('active');
+
+		// Check if 2 active swaps exists
+		if (document.querySelectorAll('.swap.active').length===2) {
+			// If so, swap those players
+			console.log('Swapping...');
+
+			var swaps = document.querySelectorAll('.swap.active');
+			var n1 = swaps[0].parentNode.parentNode.getAttribute('data-id');
+			var n2 = swaps[1].parentNode.parentNode.getAttribute('data-id');
+
+			var i1 = (Matchups.find({"players.name":n1}).fetch()[0].players[0].name === n1) ?  0 : 1;
+			var i2 = (Matchups.find({"players.name":n2}).fetch()[0].players[0].name === n2) ?  0 : 1;
+
+			// Get ids for matchup update
+			var p1 = {
+				"id" : Matchups.find({"players.name":n1}).fetch()[0]._id,
+				"index" : i1
+			};
+
+			var p2 = {
+				"id" : Matchups.find({"players.name":n2}).fetch()[0]._id,
+				"index" : i2
+			};
+
+			console.log(p1,p2);
+
+			// Change player 1
+			Matchups.update({ _id: p1.id, "players.name": n1 },{
+				$set: { "players.$.name": n2 }
+			});
+
+			// Change player 2
+			Matchups.update({ _id: p2.id, "players.name": n2 },{
+				$set: { "players.$.name": n1 }
+			});
+
+			document.querySelector(".swap.active").classList.remove('active');
+			document.querySelector(".swap.active").classList.remove('active');
+		}
+	},
 	"click .add" : function(e) {
 		if (this.score>=bestOf) return false;
 

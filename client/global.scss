@@ -97,6 +97,7 @@ header {
 			border-bottom: 1px solid black;
 			cursor: cell;
 			line-height: 40px; 
+			position: relative;
 			text-transform: capitalize;
 
 			&.active {
@@ -104,7 +105,31 @@ header {
 				color: #333;
 			}
 
-			&:before { content: attr(data-id); }
+			&:before { 
+				background: #333;
+				border-radius: 50%;
+				color: white;
+				content: attr(data-id);
+				display: block;
+				margin-right: 10px;
+				line-height: 26px;
+				position: absolute;
+				top: 7px; left: 7px;
+				width: 26px; 
+
+				&:empty { display: none; }
+			}
+
+			button {
+				border-radius: 3px;
+				font-size: 14px;
+				height: 30px;
+				opacity: 0;
+				position: absolute;
+				top: 5px; right: 5px;
+				width: 30px;
+			}
+				&:hover button { opacity: 1;}
 		}
 
 		input {
@@ -135,6 +160,8 @@ header {
 				background: lighten(#DF3400,5%);
 				transform: scale(1.1);
 			}
+
+			&.bye { background: #52626b; }
 		}
 	}
 }
@@ -203,8 +230,15 @@ header {
 
 	&:nth-of-type(4) .player {
 		&:before {
-			height: 300px;
-			top: -125px;
+			height: 270px;
+			top: -110px;
+		}
+	}
+
+	&:nth-of-type(5) .player {
+		&:before {
+			height: 450px;
+			top: -200px;
 		}
 	}
 
@@ -365,6 +399,17 @@ header {
 
 			&.sub {
 				top: 30px;
+			}
+
+			&.swap {
+				left: -40px;
+				top: 10px;
+
+				&.active {
+					background: #DF3400;
+					color: gold;
+					opacity: 1;
+				}
 			}
 
 			&.animated.tada {
