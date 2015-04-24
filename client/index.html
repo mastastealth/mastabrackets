@@ -14,6 +14,7 @@
 		<h1>Mastabrackets</h1>
 	</header>
 	
+	{{> winnerJuice }}
 	{{> bracket }}
 	{{> playerEntry }}
 </template>
@@ -24,7 +25,10 @@
 			<h2>Select Players</h2>
 			<p>Minimum 4 players (and a power of 2) to start tourney.</p>
 
-			<p><button class="bye">Add Bye</button></p>
+			<div>
+				<input id="bor" type="number" min=1 step=2 placeholder="BO# (Round)">
+				<input id="bof" type="number" min=1 step=2 placeholder="BO# (Final)">
+			</div>
 
 			<div class="playerList">
 				{{#each player}}
@@ -68,7 +72,7 @@
 </template>
 
 <template name="match">
-	<div class="matchup {{isBlank}}" id="{{id}}">
+	<div class="matchup {{isBlank}}" id="{{id}}" data-total="0">
 		{{#each pair}}
 			{{> player}}
 		{{/each}}
@@ -76,7 +80,7 @@
 </template>
 
 <template name="player">
-	<div class="player {{isLoser}} {{isWinner}}" data-id="{{name}}" data-status="{{status}}">
+	<div class="player {{isLoser}} {{isWinner}} {{isChosen}}" data-id="{{name}}" data-status="{{status}}">
 		<span class="name">{{name}}</span>
 
 		<div class="score">
@@ -92,6 +96,8 @@
 
 				<button class="swap ion-loop"></button>
 		</div>
+
+		<!-- span class="id">{{id}}</span -->
 	</div>
 </template>
 
@@ -108,4 +114,11 @@
 
 <template name="saveTourney">
 	<button class="save animated bounceIn">Save Tournament</button>
+</template>
+
+<template name="winnerJuice">
+	<div class="winner overlay {{isActive}}"></div>
+	<div class="fw">
+		<canvas id="fwYay"></canvas>
+	</div>
 </template>

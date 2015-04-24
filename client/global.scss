@@ -11,10 +11,21 @@ html, body {
 }
 
 body {
+	//background: #ABC;
 	background: url(splashBG.jpg) no-repeat center center fixed;
 	background-size: cover;
 	font-family: Lato,sans-serif;
-	padding: 100px 50px 50px;
+	padding: 70px 50px 20px;
+
+	&:before {
+		background: radial-gradient(ellipse at center, transparent 50%,black 100%) no-repeat center;
+		content: "";
+		height: 100%;
+		opacity: 1;
+		position: absolute;
+		top: 0; left: 0;
+		width: 100%;
+	}
 }
 
 h1 { font-size: 28px; }
@@ -39,6 +50,7 @@ header {
 	top: 0; left: 0;
 	transition: all 0.5s;
 	width: 100%;
+	z-index: 99;
 
 	&:not(.active) {
 		opacity: 0;
@@ -82,6 +94,13 @@ header {
 				&.error { color: red; padding-top: 20px; } 
 				&.yay { color: green; padding-top: 20px; }
 			}
+
+		input[type=number] {
+			display: inline-block;
+			margin: 0 2% 20px;
+			padding: 0 5px;
+			width: 45%;
+		}
 
 		.playerList {
 			border: 1px solid #333;
@@ -192,13 +211,28 @@ header {
 		}
 	}
 
-	&:nth-of-type(n+2) .player {
+	&:not(:first-child) .swap {
+		display: none;
+	}
+
+	&:first-child .matchup:first-child:nth-last-child(8) .player,
+	&:first-child .matchup:first-child:nth-last-child(8) ~ .matchup .player {
+		height: 32px;
+		line-height: 32px;
+	}
+
+	&.champion {
+		align-items: center;
+		justify-content: center;
+	}
+
+	&:nth-of-type(n+2) .matchup {
 		&:before {
 			background: white;
 			content: '';
 			display: block;
 			position: absolute;
-			left: -15px;
+			left: 0; top: 0;
 			width: 1px;
 		}
 
@@ -208,37 +242,46 @@ header {
 			display: block;
 			height: 1px;
 			position: absolute;
-			top: 25px; left: -15px;
+			top: 50%; left: 0;
 			width: 10px;
 		}
 	}
 
-	&:nth-of-type(2) .player {
+	&:nth-of-type(2):not(:last-child) .matchup:before {
+		height: 85%;
+		transform: translateY(10%); 
+	}
+
+	&:nth-of-type(3):not(:last-child) .matchup:before {
+		height: 60%;
+		transform: translateY(35%); 
+	}
+
+	&:nth-of-type(4):not(:last-child) .matchup:before {
+		height: 60%;
+		transform: translateY(35%); 
+	}
+
+	&:last-child .player {
 		&:before {
-			height: 80px;
-			top: -15px; 
+			background: white;
+			content: '';
+			display: block;
+			position: absolute;
+			left: -15px; top: 0;
 			width: 1px;
+			height: 80px;
+			top: -15px;
 		}
-	}
 
-	&:nth-of-type(3) .player {
-		&:before {
-			height: 150px;
-			top: -50px;
-		}
-	}
-
-	&:nth-of-type(4) .player {
-		&:before {
-			height: 270px;
-			top: -110px;
-		}
-	}
-
-	&:nth-of-type(5) .player {
-		&:before {
-			height: 450px;
-			top: -200px;
+		&:after {
+			background: white;
+			content: '';
+			display: block;
+			height: 1px;
+			position: absolute;
+			top: 50%; left: -15px;
+			width: 10px;
 		}
 	}
 
@@ -269,7 +312,7 @@ header {
 	flex-direction: column;
 	flex-grow: 1;
 	flex-shrink: 0;
-	justify-content: space-around;
+	justify-content: center;
 	position: relative;
 	transition: all 0.5s;
 
@@ -296,39 +339,53 @@ header {
 .player {
 	background: rgba(0,0,0,0.5);
 	border-radius: 10px;
+	box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
 	cursor: default;
 	line-height: 50px;
 	height: 50px;
+	margin: 3px 0;
+	//overflow: hidden;
 	padding: 0 10px;
 	position: relative;
+	text-overflow: ellipsis;
 	text-transform: capitalize;
 	transition: background 0.5s, color 0.5s;
 	width: 90%;
 
-	&:hover {
+	&:hover, &.hover {
+		background: rgba(0,0,0,0.85) !important;
 		z-index: 1;
 		color: #DF3400 !important;
-
-		.score button {
+	}
+		&:hover  .score button {
 			opacity: 1;
 			pointer-events: all;
 		}
-	}
 
 	&.loser, .blank & {
 		background: rgba(80,80,80,0.75);
 		box-shadow: inset 0 0 0 2px rgba(0,0,0,0.5);
 		color: #666;
 
-		.score {
+		.score span {
 			border-radius: 0 8px 8px 0;
+			box-shadow: inset 0 0 0 2px rgba(0,0,0,0.5);
 			color: black;
-			height: calc(100% - 4px);
-			top: 2px; right: 2px;
-			width: 48px;
 		}
 
 		button { display: none; }
+	}
+
+	&.tada {
+		background: rgba(0,0,0,0.65);
+
+		.score span {
+			background: #DF3400;
+		}
+	}
+
+	&[data-status="1"] {
+		.swap { display: none; }
 	}
 
 	.score {
@@ -351,7 +408,7 @@ header {
 		}
 
 		span {
-			background: #DF3400;
+			background: #333;
 			border-radius: 0 10px 10px 0;
 			color: white;
 			display: block;
@@ -402,8 +459,9 @@ header {
 			}
 
 			&.swap {
+				margin-top: -15px;
 				left: -40px;
-				top: 10px;
+				top: 50%;
 
 				&.active {
 					background: #DF3400;
@@ -415,17 +473,20 @@ header {
 			&.animated.tada {
 				background: #DF3400;
 				color: gold;
-				// opacity: 1;
-				// font-size: 12px;
-				// height: 20px;
-				// right: -20px;
-				// width: 20px;
 			}
 		}
 	}
+
+	// span.id {
+	// 	color: #999;
+	// 	font-size: 10px;
+	// 	position: absolute;
+	// 	top: 0; right: 0;
+	// }
 }
 	.champion .player {
 		background: #DF3400;
+		box-shadow: none;
 		text-align: center;
 		text-transform: uppercase;
 
@@ -435,6 +496,7 @@ header {
 
 		i {
 			color: gold;
+			display: inline-block;
 			font-size: 22px;
 			margin-right: 10px;
 			vertical-align: middle;
@@ -467,4 +529,98 @@ header {
 		background: rgba(80,80,80,0.75);
 		color: #666;
 	}
+}
+
+.winner {
+	&:not(.active), &:not(.active)+.fw { pointer-events: none; }
+
+	&.active ~ .bracket .column.champion > .player {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%,-50%);
+		width: 50%;
+		z-index: 100;
+
+		&:before, &:after { content: none !important; }
+
+		span:after { color: black; content: " is the best." }
+	}
+}
+
+.fw {
+	height: 100%;
+	mix-blend-mode: screen;
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%;
+	z-index: 99;
+
+	canvas {
+		height: 100%;
+		width: 100%;
+	}
+}
+
+
+// Typeahead
+.twitter-typeahead {
+	text-align: left;
+	width: 100%;
+
+	>input { text-align: left !important; }
+}
+
+.tt-query, /* UPDATE: newer versions use tt-input instead of tt-query */
+.tt-hint {
+    width: 396px;
+    height: 30px;
+    padding: 8px 12px;
+    font-size: 24px;
+    line-height: 30px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+.tt-query { /* UPDATE: newer versions use tt-input instead of tt-query */
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+    color: #999
+}
+
+.tt-dropdown-menu {
+    width: 100%;
+    margin-top: -19px;
+    overflow: hidden;
+    padding: 8px 0;
+    background-color: #fff;
+    border-radius:  0 0 8px 8px;
+    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+	//background: white;
+	//display: block;
+	float: none;
+    padding: 3px 20px;
+    font-size: 18px;
+    line-height: 24px;
+}
+
+.tt-dataset-player {
+	height: 30px;
+	line-height: 30px;
+}
+
+.tt-suggestion.tt-is-under-cursor { /* UPDATE: newer versions use .tt-suggestion.tt-cursor */
+    color: #fff;
+    background-color: #0097cf;
+
+}
+
+.tt-suggestion p {
+    margin: 0;
 }
