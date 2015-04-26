@@ -9,6 +9,8 @@ Session.set('playerList',[]);
 
 // Subscriptions
 Meteor.subscribe('Matches');
+Meteor.subscribe('Matchups');
+
 Meteor.subscribe('Signup', function() {
 	// Add signup if empty
 	if (Signup.find().fetch().length === 0) {
@@ -20,37 +22,45 @@ Meteor.subscribe('Signup', function() {
 });
 Meteor.subscribe('Players',function() {
 	// If tournament hasn't started
-	// if ( Players.find({ name : "MATCHSTART" }).fetch().length === 0 ) {
+	if ( Matchups.find().fetch().length === 0 && Players.find({ "playing" : { $gt: 0 } }).fetch().length <= 3) {
 		Session.set('overlay',true);
 		// TODO: Sync match scores live
-	// } else {
-	// 	console.log("Tournament in progress...");
+	} else {
+		console.log("Tournament in progress...");
 
-	// 	var p = Players.find({ "playing" : { $gt: 0 } }).fetch();
-	// 	var pp =[]
+		var p = Players.find({ "playing" : { $gt: 0 } }).fetch();
+		var pp =[]
 
-	// 	for (var i=0;i<p.length;i+=1) {
-	// 		pp.push(p[i].name);
-	// 	}
+		for (var i=0;i<p.length;i+=1) {
+			pp.push(p[i].name);
+		}
 
-	// 	console.log(pp);
-	// 	Session.set('playerList',pp);
-	// 	startTourney( pp );
+		console.log(pp);
+		Session.set('playerList',pp);
+		startTourney( pp, true );
+	}
+
 	// }
 });
 
-Matchups = new Mongo.Collection(null); // Local
-
-function startTourney(p) {
+function startTourney(p,notfresh) {
+	console.log('Starting tournament...')
 	//players = p;
-	bestOf = parseInt(document.getElementById('bor').value);
-	bestOf = (bestOf === 1) ? 1 : bestOf-1;
-	bestOfFinal = parseInt(document.getElementById('bof').value);
-	bestOfFinal = (bestOfFinal === 1) ? 1 : bestOfFinal-1;
 	var playerCount = p.length;
 	var t = playerCount/2;
 	var c = 1;
 	var parent = false;
+
+	if (notfresh) {
+		bestOf = Matchups.find().fetch()[0].bestof;
+		bestOfFinal = Matchups.find({tier:1}).fetch()[0].bestof;
+		return false;
+	}
+
+	bestOf = parseInt(document.getElementById('bor').value);
+	bestOf = (bestOf === 1) ? 1 : bestOf-1;
+	bestOfFinal = parseInt(document.getElementById('bof').value);
+	bestOfFinal = (bestOfFinal === 1) ? 1 : bestOfFinal-1;
 
 	// Add ALL the matchups in this bracket
 	for (var i=0; i<playerCount-1; i+=1) {
@@ -307,7 +317,7 @@ Template.playerEntry.events({
 		if (parseInt(document.getElementById('bor').value) > 0 && parseInt(document.getElementById('bof').value) > 0) bo = true;
 
 		if (document.querySelectorAll('.playerOpt').length>=3 && Session.get('adminMode') === true && bo) {
-			Players.insert({ name: "MATCHSTART" });
+			//Players.insert({ name: "MATCHSTART" });
 
 			// Add ALL current players if none selected
 			if (pActive===0) {
@@ -328,7 +338,7 @@ Template.playerEntry.events({
 			var b = nearestPow2(pList.length) - pList.length;
 
 			for (var i=0;i<b;i+=1) {
-				Players.insert({ name: "bye", wins: 0, losses: 0 });
+				Players.insert({ name: "bye", wins: 0, losses: 0, playing: 1 });
 
 				var p = Session.get('playerList');
 				p.push("bye");
@@ -586,17 +596,13 @@ Template.player.events({
 		if (this.score>=bestOfFinal && mC === 1 || this.score>=bestOf && mC != 1) return false;
 
 		var parent = (!this.id) ? Template.parentData(1)._id : this.id;
-		console.log(mC);
+		console.log(this.score,bestOf);
 
 		// var m = parseInt(document.getElementById(parent).getAttribute('data-total'));
 		// document.getElementById(parent).setAttribute('data-total',m++);
 		// if (m>=this.score) return false;
 
-		Matchups.update({ _id: parent, "players.name":this.name },{
-			$inc: { 
-				"players.$.score": 1
-			}
-		});
+		Meteor.call('addScore',parent,this.name);
 	},
 	"click .sub" : function(e) {
 		if (this.score<=0) return false;
@@ -606,11 +612,7 @@ Template.player.events({
 		// var m = parseInt(document.getElementById(parent).getAttribute('data-total'));
 		// if (m>0) document.getElementById(parent).setAttribute('data-total',m--);
 
-		Matchups.update({ _id: parent, "players.name":this.name },{
-			$inc: { 
-				"players.$.score": -1
-			}
-		});
+		Meteor.call('subScore',parent,this.name);
 
 		// Mark both players as normal and remove any winners
 		Matchups.update({ _id: Template.parentData(1)._id },{
@@ -631,18 +633,9 @@ Template.player.events({
 				"winner": this.name,
 			}
 		});
-		// Mark player as winner
-		Matchups.update({ _id: parent, "players.name":this.name },{
-			$set: { 
-				"players.$.winner": 1
-			}
-		});
-		// Mark other player as loser
-		Matchups.update({ _id: parent, "players.winner":0 },{
-			$set: { 
-				"players.$.winner": -1
-			}
-		});
+		// Mark winner/loser
+		Meteor.call('setWinner',parent,this.name);
+		
 		// Set winner as player of next round
 		var pCheck = Matchups.find({ "players.parent" : parent  }).fetch();
 
@@ -653,13 +646,9 @@ Template.player.events({
 		} else {
 			// Not Champion yet
 			if (pCheck[0].players[0].parent === parent) {
-				Matchups.update({ "players.parent" : parent  },{
-					$set: { "players.0.name": this.name }
-				});
+				Meteor.call('setParent',parent,this.name,0);
 			} else if (pCheck[0].players[1].parent === parent) {
-				Matchups.update({ "players.parent" : parent  },{
-					$set: { "players.1.name": this.name }
-				});
+				Meteor.call('setParent',parent,this.name,1);
 			}
 		}
 	},

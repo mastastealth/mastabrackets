@@ -535,6 +535,7 @@ header {
 	&:not(.active), &:not(.active)+.fw { pointer-events: none; }
 
 	&.active ~ .bracket .column.champion > .player {
+		pointer-events: none;
 		position: fixed;
 		top: 50%;
 		left: 50%;
