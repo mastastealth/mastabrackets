@@ -21,6 +21,15 @@
 					{{status.text}}
 				</p>
 			{{/if}} 
+
+			<aside>
+				<h3>Confirmed Players:</h3>
+				<div class="playerList" style="height:auto">
+					{{#each player}}
+						<div class="playerOpt">{{name}}</div>
+					{{/each}}
+				</div>
+			</aside>
 		</div>
 	</div>
 </template>

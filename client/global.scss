@@ -38,6 +38,46 @@ header {
 	position: fixed;
 	top: 0; left: 0;
 	width: 100%;
+
+	h1 { float: left; }
+
+	nav {
+		float: right;
+
+		button {
+			background: #DF3400;
+			border: 0 none;
+			border-radius: 4px;
+			color: white;
+			cursor: pointer;
+			font-size: 12px;
+			font-weight: bold;
+			padding: 5px 10px;
+			text-transform: uppercase;
+
+			&:hover { background: gold; color: #333; }
+
+			&.end {
+				&:after { 
+					content: ' - Are You Sure?';
+					display: inline-block;
+					overflow: hidden; 
+					line-height: 90%;
+					margin-left: 5px;
+					max-width: 0px;
+					transition: max-width 0.5s;
+					white-space: nowrap;
+				}
+
+				&.rusure {
+					color: gold;
+
+					&:after { max-width: 200px; }
+					&:hover { color: #333; }
+				}
+			}
+		}
+	}
 }
 
 .overlay {
@@ -66,6 +106,7 @@ header {
 		border-radius: 10px;
 		max-height: 75vh;
 		padding: 20px;
+		position: relative;
 		text-align: center;
 		transition: all 0.5s;
 		width: 320px;
@@ -182,6 +223,12 @@ header {
 
 			&.bye { background: #52626b; }
 		}
+
+		aside { 
+			position: absolute;
+			top: 10px; left: 105%;
+			width: 200px;
+		}
 	}
 }
 
@@ -211,7 +258,8 @@ header {
 		}
 	}
 
-	&:not(:first-child) .swap {
+	&:not(:first-child) .swap,
+	&:not(:first-child) .subs {
 		display: none;
 	}
 
@@ -385,7 +433,7 @@ header {
 	}
 
 	&[data-status="1"] {
-		.swap { display: none; }
+		.swap, .subs { display: none; }
 	}
 
 	.score {
@@ -458,7 +506,7 @@ header {
 				top: 30px;
 			}
 
-			&.swap {
+			&.swap, &.subs {
 				margin-top: -15px;
 				left: -40px;
 				top: 50%;
@@ -468,6 +516,10 @@ header {
 					color: gold;
 					opacity: 1;
 				}
+			}
+
+			&.subs {
+				left: -80px;
 			}
 
 			&.animated.tada {

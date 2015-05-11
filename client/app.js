@@ -22,17 +22,24 @@ Meteor.subscribe('Signup', function() {
 });
 Meteor.subscribe('Players',function() {
 	// If tournament hasn't started
-	if ( Matchups.find().fetch().length === 0 && Players.find({ "playing" : { $gt: 0 } }).fetch().length <= 3) {
+	if ( Matchups.find({tier:{$gt:0}}).fetch().length === 0 || Players.find({ "playable": true, "playing" : { $gt: 0 } }).fetch().length <= 2) {
 		Session.set('overlay',true);
 		// TODO: Sync match scores live
 	} else {
 		console.log("Tournament in progress...");
 
-		var p = Players.find({ "playing" : { $gt: 0 } }).fetch();
+		var p = Players.find({ "playable": true, "playing" : { $gt: 0 } }).fetch();
 		var pp =[]
 
 		for (var i=0;i<p.length;i+=1) {
 			pp.push(p[i].name);
+		}
+
+		// Add missing byes
+		var b = nearestPow2(pp.length) - pp.length;
+
+		for (var i=0;i<b;i+=1) {
+			pp.push("bye");
 		}
 
 		console.log(pp);
@@ -52,15 +59,22 @@ function startTourney(p,notfresh) {
 	var parent = false;
 
 	if (notfresh) {
-		bestOf = Matchups.find().fetch()[0].bestof;
+		bestOf = Matchups.find({tier:{$gt:0}}).fetch()[0].bestof;
 		bestOfFinal = Matchups.find({tier:1}).fetch()[0].bestof;
+
+		// Champion already?
+		if ( Matchups.find({"tier":1}).fetch().length>0 && Matchups.find({"tier":1}).fetch()[0].winner != "" ) {
+			Session.set('champion', Matchups.find({"tier":1}).fetch()[0].winner);
+			makeFireworks();
+		}
+
 		return false;
 	}
 
 	bestOf = parseInt(document.getElementById('bor').value);
-	bestOf = (bestOf === 1) ? 1 : bestOf-1;
+	bestOf = (bestOf === 1) ? 1 : Math.round(bestOf/2);
 	bestOfFinal = parseInt(document.getElementById('bof').value);
-	bestOfFinal = (bestOfFinal === 1) ? 1 : bestOfFinal-1;
+	bestOfFinal = (bestOfFinal === 1) ? 1 : Math.round(bestOfFinal/2);
 
 	// Add ALL the matchups in this bracket
 	for (var i=0; i<playerCount-1; i+=1) {
@@ -69,6 +83,8 @@ function startTourney(p,notfresh) {
 			t = t/2;
 			c = 1;
 		}
+
+		var best = (t===1) ? bestOfFinal : bestOf;
 
 		Matchups.insert({
 			"players" : [
@@ -87,7 +103,8 @@ function startTourney(p,notfresh) {
 			],
 			"winner" : "",
 			"tier" : t,
-			"bestof" : bestOf
+			"bestof" : best,
+			"match" : i
 		});
 
 		c++;
@@ -170,6 +187,51 @@ function nearestPow2( aSize ){
 	return Math.pow(2, Math.ceil(Math.log( aSize )/Math.log(2))); 
 }
 
+Template.nav.helpers({
+	"isAdmin" : function() {
+		return Session.get('adminMode');
+	}
+});
+
+Template.nav.events({
+	"click .end" : function(e) {
+		if (e.target.classList.contains('rusure')) {
+			// Delete matchups
+			var m = Matchups.find().fetch();
+
+			for (var n=0;n<m.length;n+=1) {
+				Matchups.remove(m[n]._id);
+				console.log(m);
+			}
+
+			// Remove Byes
+			var byes = Players.find({ name: "bye" }).fetch();
+
+			for (var b=0;b<byes.length;b+=1) {
+				Players.remove( byes[b]._id );
+			}
+
+			// Reset players
+			var p = Players.find().fetch();
+
+			for (var i=0;i<p.length;i+=1) {
+				Players.update({ _id: p[i]._id },{
+					$set: { 
+						"playable" : false,
+						"playing": 0
+					}
+				});
+			}
+
+			// Refresh Page
+			location.reload();
+		} else {
+			e.target.classList.add('rusure');
+		}
+		
+	}
+});
+
 // Signup
 Template.signup.helpers({
 	"isAdmin" : function() {
@@ -196,6 +258,9 @@ Template.signup.helpers({
 	},
 	"prevplayers" : function() {
 		return Players.find().fetch().map(function(it){ return it.name; });
+	},
+	"player" : function() {
+		return Players.find({ playable: true },{sort: {name: 1}}); //playable: true
 	}
 });
 
@@ -206,7 +271,7 @@ Template.signup.events({
 		if (Players.find({name: p}).fetch().length === 0) {
 			Session.set('signUpMsg',{error:false,success:true,text:"Player added!"});
 
-			Players.insert({ name: p, playable: true });
+			Meteor.call('updatePlayer',p);
 			p = "";
 
 			document.querySelector('.modal').classList.add('animated','tada');
@@ -217,8 +282,9 @@ Template.signup.events({
 			document.getElementById('player').setAttribute('disabled','disabled');
 		} else {
 			var pid = Players.find({ name: p }).fetch()[0]._id;
-			Players.update({ _id: pid }, { 
-				$set: { playable: true } 
+
+			Meteor.call('updatePlayer',pid, function(err,i) {
+				if (err) { console.log(err.reason); }
 			});
 
 			document.querySelector('.modal').classList.add('animated','tada');
@@ -396,7 +462,7 @@ Template.bracket.helpers({
 			}
 		}
 
-		if (Matchups.find().fetch().length === 0) {
+		if (Matchups.find({tier:{$gt:0}}).fetch().length === 0) {
 			return [];
 		} else {
 			return columns;
@@ -418,7 +484,7 @@ Template.column.helpers({
 		if (m===0 && this.matches != 0) return "empty";
 	},
 	"matchup" : function() {
-		var m = Matchups.find({ tier: this.matches });
+		var m = Matchups.find({ tier: this.matches }, { sort : { match: 1 } });
 		if (m.fetch().length===0) {
 			return false
 		} else {
@@ -448,6 +514,9 @@ Template.champ.helpers({
 	},
 	"winner" : function() {
 		if (Session.get('champion')) return "animated rubberBand infinite"
+	},
+	"isAdmin" : function() {
+		return Session.get('adminMode');
 	}
 });
 
@@ -455,7 +524,7 @@ Template.champ.events({
 	"click button.save" : function(e)  {
 		// Iterate through all the matchups and check for winners
 		var w = 0;
-		var m = Matchups.find().fetch();
+		var m = Matchups.find({tier:{$gt:0}}).fetch();
 
 		for (var i=0;i<m.length;i+=1) {
 			if (m[i].winner != "") w++
@@ -500,13 +569,13 @@ Template.champ.events({
 			var byes = Players.find({ name: "bye" }).fetch().length;
 
 			for (var b=0;b<byes;b+=0) {
-				Players.remove( Players.find({ name: "bye" }).fetch()[0]._id );
+				if (Players.find({ name: "bye" }).fetch()[0]) Players.remove( Players.find({ name: "bye" }).fetch()[0]._id );
 			}
 
 			var starts = Players.find({ name: "MATCHSTART" }).fetch().length;
 
 			for (var m=0;m<starts;m+=0) {
-				Players.remove( Players.find({ name: "MATCHSTART" }).fetch()[0]._id );
+				if (Players.find({ name: "MATCHSTART" }).fetch()[0]) Players.remove( Players.find({ name: "MATCHSTART" }).fetch()[0]._id );
 			}
 		}
 	}
@@ -541,10 +610,23 @@ Template.player.helpers({
 	},
 	"isChosen" : function() {
 		if (Session.get('playerHover') === this.name) return "hover";
+	},
+	"isAdmin" : function() {
+		return Session.get('adminMode');
 	}
 })
 
 Template.player.events({
+	"click .subs" : function(e){
+		var s = prompt("Who is going to sub in for this player? (For the love of God, spell it correctly or I'll have to fix it manually later :P)");
+
+		if (s !=null && s!= "") {
+			s = s.toLowerCase().replace(/\s+/g, '');
+			var p = e.target.parentNode.parentNode.getAttribute('data-id');
+			var m = e.target.parentNode.parentNode.parentNode.getAttribute('id');
+			Meteor.call('swapPlayers',m,p,s);
+		}
+	},
 	"click .swap" : function(e) {
 		e.target.classList.toggle('active');
 
@@ -578,14 +660,10 @@ Template.player.events({
 			console.log(p1,p2);
 
 			// Change player 1
-			Matchups.update({ _id: p1.id, "players.name": n1 },{
-				$set: { "players.$.name": n2 }
-			});
+			Meteor.call('swapPlayers',p1.id,n1,n2);
 
 			// Change player 2
-			Matchups.update({ _id: p2.id, "players.name": n2 },{
-				$set: { "players.$.name": n1 }
-			});
+			Meteor.call('swapPlayers',p2.id,n2,n1);
 
 			document.querySelector(".swap.active").classList.remove('active');
 			document.querySelector(".swap.active").classList.remove('active');
@@ -672,6 +750,13 @@ Template.winnerJuice.events({
 		document.querySelector('.winner.overlay').classList.remove('active');
 	}
 });
+
+Template.saveTourney.helpers({
+	"notSaved" : function() {
+		var s = ( Matchups.find({saved:true}).fetch().length === 0 ) ?  true : false;
+		return s;
+	}
+})
 
 // ----------------
 // Cheet.js

@@ -12,11 +12,21 @@
 <template name="index">
 	<header>
 		<h1>Mastabrackets</h1>
+
+		{{> nav }}
 	</header>
 	
 	{{> winnerJuice }}
 	{{> bracket }}
 	{{> playerEntry }}
+</template>
+
+<template name="nav">
+	{{#if isAdmin }}
+	<nav>
+		<button class="end">End Tourney</button>
+	</nav>
+	{{/if}}
 </template>
 
 <template name="playerEntry">
@@ -86,15 +96,18 @@
 		<div class="score">
 			<span>{{score}}</span>
 
-			{{#if isWinnerConfirm}} 
-				<button class="win ion-ribbon-a {{isWinner}}"></button>
-				<button class="sub ion-minus-round"></button>
-			{{ else }}
-				<button class="add ion-plus-round"></button>
-				<button class="sub ion-minus-round"></button>
-			{{/if}}
+			{{#if isAdmin}}
+				{{#if isWinnerConfirm}} 
+					<button class="win ion-ribbon-a {{isWinner}}"></button>
+					<button class="sub ion-minus-round"></button>
+				{{ else }}
+					<button class="add ion-plus-round"></button>
+					<button class="sub ion-minus-round"></button>
+				{{/if}}
 
-				<button class="swap ion-loop"></button>
+					<button class="subs ion-person-stalker"></button>
+					<button class="swap ion-loop"></button>
+			{{/if}}
 		</div>
 
 		<!-- span class="id">{{id}}</span -->
@@ -107,13 +120,17 @@
 		<span class="name">{{name}}</span>
 	</div>
 
-	{{#if winner}}
-		{{> saveTourney}}
+	{{#if isAdmin}}
+		{{#if winner}}
+			{{> saveTourney}}
+		{{/if}}
 	{{/if}}
 </template>
 
 <template name="saveTourney">
-	<button class="save animated bounceIn">Save Tournament</button>
+	{{#if notSaved }}
+		<button class="save animated bounceIn">Save Tournament</button>
+	{{/if}}
 </template>
 
 <template name="winnerJuice">
